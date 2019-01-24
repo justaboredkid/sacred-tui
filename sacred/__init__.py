@@ -1,11 +1,12 @@
-from blessed import Terminal
-from time import sleep
-from shutil import get_terminal_size
 from multiprocessing import Process, Lock
-import os
-import sys
+from shutil import get_terminal_size
+from time import sleep
 import json
+import os
 import re
+import sys
+
+from blessed import Terminal
 
 t = Terminal()
 screen = []
@@ -49,16 +50,17 @@ class Scene(object):
                     j["size"] = [max(s), len(j)]
             return j
         except IndexError:
-            print("Scene.obj(): {}".format(file))
+            print("Scene.obj(): {} \n".format(file))
             raise TooLarge
 
     def txt(self, txt: str, x=0, y=0):
         global screen
         try:
-            raw = re.sub(r"\x1b\[\d{1,3}m|\x1b\(B\x1b\[m", "", txt)  #ANSI stuff
+            raw = re.sub(r"\x1b\[\d{1,3}m|\x1b\(B\x1b\[m", "",
+                         txt)  # ANSI stuff
             screen[y] = screen[y][:x] + txt + screen[y][x + len(raw):]
         except IndexError:
-            print("Scene.txt(): {}".format(raw))
+            print("Scene.txt(): {} \n".format(raw))
             raise TooLarge
 
     def box(self, x=0, y=0, w=width, h=height - 1, fill=" "):
@@ -76,10 +78,10 @@ class Scene(object):
                 screen[y + i + 1] = screen[y + i][:x] + "|" + fill * (
                     w - 2) + "|" + screen[y + i][x + w:]
         except IndexError:
-            print("Scene.box: w={} h={}".format(w, h))
+            print("Scene.box: w={} h={} \n".format(w, h))
             raise TooLarge
 
-    def render(self):  #for unadjusted stages. deprecated.
+    def render(self):  # for unadjusted stages. deprecated.
         global screen
         frame = "\n".join(screen) + "\n"
 
@@ -131,25 +133,11 @@ class Camera(object):
 class TooLarge(Exception):
 
     def __init__(self):
-
-        print(t.bold_red_on_bright_yellow("Scene exceeds terminal width"))
-        print(
-            t.bold_white_on_green(
-                "User: If possible, maximize the terminal window.\nDev: Make sure your x and y values are in check."
-            ))
-
-
-def fill(txt, delay=0, diag=True):  # fills screen with txt
-    if len(txt) > 1:
-        raise ValueError  # allow only ONE char
-    if diag:
-        for _ in range(0, (height - 2)):
-            print(txt * (width - 1))
-            sleep(delay)
-    else:
-        for _ in range(0, height - 1):
-            print(txt * (width - 1))
-            sleep(delay)
+        a = "Scene exceeds terminal size.\n"
+        b = "User: If possible, maximize the terminal window.\nDev: Make sure your x and y values are in check."
+        msg = a + b
+        super(TooLarge, self).__init__(msg)
+        print(t.bold_red_on_bright_yellow(a) + t.bold_white_on_green(b))
 
 
 def txtbox(txt, x=0, y=height - 1):
