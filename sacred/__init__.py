@@ -15,7 +15,7 @@ width, height = get_terminal_size()
 
 def create_stage(w=width, h=height):
     global screen
-    screen = [w * " " for i in range(0, h - 1)]
+    screen = [w * " " for _ in range(0, h - 1)]
 
 
 class Scene(object):

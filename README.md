@@ -1,4 +1,4 @@
-# sacred-tui
+# sacred-tui  ![travis-ci](https://api.travis-ci.org/justaboredkid/sacred-tui.svg?branch=development)
 ASCII art import and terminal graphics. IN PYTHON. 
 
 ![sacred library demo](demo.gif)

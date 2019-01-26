@@ -7,6 +7,7 @@ with open("README.md", "r") as fh:
         long_description=fh.read(),
         description='Python library for ASCII art import and TUI development',
         url='https://github.com/justaboredkid/sacred',
+        test_suite='tests',
         author='justaboredkid',
         author_email='29010153+justaboredkid@users.noreply.github.com',
         license='GNU GPLv3',
@@ -15,8 +16,12 @@ with open("README.md", "r") as fh:
             'blessed',
         ],
         classifiers=[
+            'Environment :: Console',
+            'Intended Audience :: Developers',
             'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
             'Programming Language :: Python :: 3',
+            'Topic :: Software Development :: User Interfaces',
+            'Topic :: Software Development :: Libraries :: Python Modules',
         ],
         zip_safe=False,
         entry_points={
