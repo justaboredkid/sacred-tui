@@ -5,8 +5,8 @@ import json
 import os
 import re
 import sys
-
 from blessed import Terminal
+from sacred.modules import lines
 
 t = Terminal()
 screen = []
@@ -63,20 +63,44 @@ class Scene(object):
             print("Scene.txt(): {} \n".format(raw))
             raise TooLarge
 
-    def box(self, x=0, y=0, w=width, h=height - 1, fill=" "):
+    def box(self, x=0, y=0, w=width, h=height - 1, style='reg', fill=" "):
         global screen
         try:
             if len(fill) > 1:
                 raise ValueError  # allow only ONE char
+            if lines.line is None:
+                #if unicode is not supported
+                screen[y] = screen[y][:x] + "-" * w + screen[y][x + w:]
+                screen[y + h -
+                       1] = screen[y + h - 1][:x] + "-" * w + screen[y + h -
+                                                                     1][x + w:]
 
-            screen[y] = screen[y][:x] + "-" * w + screen[y][x + w:]
-            screen[
-                y + h -
-                1] = screen[y + h - 1][:x] + "-" * w + screen[y + h - 1][x + w:]
+                for i in range(0, int(h) - 2):
+                    screen[y + i + 1] = screen[y + i][:x] + "|" + fill * (
+                        w - 2) + "|" + screen[y + i][x + w:]
 
-            for i in range(0, int(h) - 2):
-                screen[y + i + 1] = screen[y + i][:x] + "|" + fill * (
-                    w - 2) + "|" + screen[y + i][x + w:]
+            else:
+                screen[
+                    y] = screen[y][:
+                                   x] + lines.line[style][7] + lines.line[style][0] * (
+                                       w - 2
+                                   ) + lines.line[style][1] + screen[y][x + w:]
+                screen[
+                    y + h -
+                    1] = screen[y + h -
+                                1][:
+                                   x] + lines.line[style][5] + lines.line[style][4] * (
+                                       w - 2
+                                   ) + lines.line[style][3] + screen[y + h -
+                                                                     1][x + w:]
+
+                for i in range(0, int(h) - 2):
+                    screen[
+                        y + i +
+                        1] = screen[y + i][:x] + lines.line[style][6] + fill * (
+                            w - 2) + lines.line[style][2] + screen[y + i][x +
+                                                                          w:]
+
         except IndexError:
             print("Scene.box: w={} h={} \n".format(w, h))
             raise TooLarge

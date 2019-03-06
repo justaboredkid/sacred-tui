@@ -8,11 +8,11 @@ t = Terminal()
 scene = sacred.Scene()
 back = sacred.Scene()
 cam = sacred.Camera()
-sd = 25  # star density
+sd = 30  # star density
 p = 10000  # Stage width
 f = 25  # FPS
-m = True  # multiprocessing
-loop = False
+m = False  # multiprocessing
+loop = True
 
 sacred.create_stage(p, t.height)
 
