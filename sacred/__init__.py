@@ -156,8 +156,9 @@ class Camera(object):
 
         else:
             sys.stdout.flush()
-            with t.location(0, 0):
-                sys.stdout.write("\n".join(r) + "\n")
+            with t.fullscreen():
+                with t.location(0, 0):
+                    sys.stdout.write("\n".join(r) + "\n")
 
 
 class TooLarge(Exception):
