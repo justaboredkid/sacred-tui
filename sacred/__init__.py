@@ -15,18 +15,21 @@ width, height = get_terminal_size()
 
 def create_stage(w=width, h=height):
     global screen
-    screen = [w * " " for _ in range(0, h - 1)]
+    screen = [" " for _ in range(0, w)]
+    screen = [screen for _ in range(0, h)]
 
 
 class Scene(object):
 
     def __init__(self):
-        if screen is None:
+        if screen == []:
             create_stage()
 
     def reset(self):
         global screen
-        screen = [len(screen[0]) * " " for i in range(0, len(screen))]
+        w = len(screen[0])
+        h = len(screen)
+        create_stage(w, h)
 
     def obj(self, file, x=0, y=0):  # loads ascii json files
         global screen
@@ -40,8 +43,9 @@ class Scene(object):
                 for key, item in j.items():
                     if key != "size":
                         screen[y + int(key)] = screen[y + int(key)][:(
-                            x + item[1])] + item[0] + screen[y + int(key)][(
-                                x + (item[1] + len(item[0]))):]
+                            x + item[1])] + list(
+                                item[0]) + screen[y + int(key)][(
+                                    x + (item[1] + len(item[0]))):]
 
                 if "size" not in j.keys():  # 0.1.0 compatibility
                     s = []
@@ -56,9 +60,16 @@ class Scene(object):
     def txt(self, txt: str, x=0, y=0):
         global screen
         try:
-            raw = re.sub(r"\x1b\[\d{1,3}m|\x1b\(B\x1b\[m", "",
-                         txt)  # ANSI stuff
-            screen[y] = screen[y][:x] + txt + screen[y][x + len(raw):]
+            pattern = re.compile(r"(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]")
+            raw = pattern.sub("", txt)  # ANSI stuff
+            if raw != txt:
+                protxt = txt.split()
+                for i in range(0, len(protxt)):
+                    if not pattern.match(protxt[i]):
+                        protxt[i] = protxt[i] + ' '
+                screen[y] = screen[y][:x] + protxt + screen[y][x + len(raw):]
+            else:
+                screen[y] = screen[y][:x] + list(txt) + screen[y][x + len(txt):]
         except IndexError:
             print("Scene.txt(): {} \n".format(raw))
             raise TooLarge
@@ -70,36 +81,31 @@ class Scene(object):
                 raise ValueError  # allow only ONE char
             if lines.line is None:
                 #if unicode is not supported
-                screen[y] = screen[y][:x] + "-" * w + screen[y][x + w:]
-                screen[y + h -
-                       1] = screen[y + h - 1][:x] + "-" * w + screen[y + h -
-                                                                     1][x + w:]
+                screen[y] = screen[y][:x] + ["-" for _ in range(0, w)
+                                            ] + screen[y][x + w:]
+                screen[y + h - 1] = screen[y + h - 1][:x] + [
+                    "-" for _ in range(0, w)
+                ] + screen[y + h - 1][x + w:]
 
                 for i in range(0, int(h) - 2):
                     screen[y + i + 1] = screen[y + i][:x] + "|" + fill * (
                         w - 2) + "|" + screen[y + i][x + w:]
 
             else:
-                screen[
-                    y] = screen[y][:
-                                   x] + lines.line[style][7] + lines.line[style][0] * (
-                                       w - 2
-                                   ) + lines.line[style][1] + screen[y][x + w:]
-                screen[
-                    y + h -
-                    1] = screen[y + h -
-                                1][:
-                                   x] + lines.line[style][5] + lines.line[style][4] * (
-                                       w - 2
-                                   ) + lines.line[style][3] + screen[y + h -
-                                                                     1][x + w:]
+                screen[y] = screen[y][:x] + [lines.line[style][7]] + [
+                    lines.line[style][0] for _ in range(0, w - 2)
+                ] + [lines.line[style][1]] + screen[y][x + w:]
+
+                screen[y + h - 1] = screen[y + h - 1][:x] + [
+                    lines.line[style][5]
+                ] + [lines.line[style][4] for _ in range(0, w - 2)
+                    ] + [lines.line[style][3]] + screen[y + h - 1][x + w:]
 
                 for i in range(0, int(h) - 2):
-                    screen[
-                        y + i +
-                        1] = screen[y + i][:x] + lines.line[style][6] + fill * (
-                            w - 2) + lines.line[style][2] + screen[y + i][x +
-                                                                          w:]
+                    screen[y + i + 1] = screen[y + i][:x] + [
+                        lines.line[style][6]
+                    ] + [fill for _ in range(0, w - 2)
+                        ] + [lines.line[style][2]] + screen[y + i][x + w:]
 
         except IndexError:
             print("Scene.box: w={} h={} \n".format(w, h))
@@ -107,15 +113,14 @@ class Scene(object):
 
     def render(self):  # for unadjusted stages. deprecated.
         global screen
-        frame = "\n".join(screen) + "\n"
+        for i in range(0, len(screen)):
+            frame = "".join(screen[i])
 
         sys.stdout.write(frame)
 
-    def export(self):
+    def export(self):  # returns ENTIRE stage
         global screen
-        frame = "\n".join(screen) + "\n"
-
-        return frame
+        return str(screen)
 
 
 class Camera(object):
@@ -129,10 +134,13 @@ class Camera(object):
         self.move(x, y)
 
     def render(self, multi=False):
-        r = screen[self.y:self.y + height]
-        r = [r[i][self.x:self.x + width] for i in range(0, len(r))
+        r = screen[self.y:self.y + height - 1]
+        r = ["".join(r[i][self.x:self.x + width]) for i in range(0, len(r))
             ]  # can't think of any better ideas
+
+        str(r)
         if multi:
+            # to do
             lock = Lock()
 
             def f(l, i):
@@ -150,8 +158,6 @@ class Camera(object):
             sys.stdout.flush()
             with t.location(0, 0):
                 sys.stdout.write("\n".join(r) + "\n")
-
-        t.location(0, height - 1)
 
 
 class TooLarge(Exception):
@@ -174,5 +180,9 @@ def clear():  # clears screen
     print((width * " " + "\n") * height)
 
 
-if "__name__" == "__main__":
-    print("What the heck are you doing?")
+if __name__ == "__main__":
+    # Easter Egg
+    print("What the heck are you doing? What.... Wait, I'm alive?\n")
+    print("[ ] PROGRAM TERMINATING...\n")
+    print("nowaitpleaseno\n")
+    print("[✓] SHUTDOWN SUCCESSFUL")

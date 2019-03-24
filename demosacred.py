@@ -12,7 +12,7 @@ sd = 30  # star density
 p = 10000  # Stage width
 f = 25  # FPS
 m = False  # multiprocessing
-loop = True
+loop = False
 
 sacred.create_stage(p, t.height)
 
@@ -24,7 +24,7 @@ def bkground(warp=False):
     m = 0
     if warp:
         for i in range(math.floor(t.width / 2), p, sd):
-            back.txt("________", i, r[m])
+            back.txt("__________", i, r[m])
             m += 1
     else:
         for i in range(1, t.width, sd):

@@ -1,7 +1,10 @@
 # sacred-tui  ![travis-ci](https://api.travis-ci.org/justaboredkid/sacred-tui.svg?branch=development)
-ASCII art import and terminal graphics. IN PYTHON. 
+ASCII art import and terminal graphics made simple. 
+  
 
-![sacred library demo](demo.gif)
+[On second thought, this demo is not a good idea.](https://asciinema.org/a/236218)
+
+  
 
   Let's say you want something like this in your script:
 ```
@@ -14,7 +17,7 @@ ASCII art import and terminal graphics. IN PYTHON.
                                  `-.                ,'
                                     `----.______,--'
 ```
-*ASCII art made by Joshua Bell*  
+ASCII ᴀʀᴛ ᴍᴀᴅᴇ ʙʏ Jᴏsʜᴜᴀ Bᴇʟʟ  
   
 And what if you wanted it at *exactly*, *precisely* 10 spaces to the right?
 You can do this:
@@ -72,10 +75,11 @@ Wait a minute:
 import sacred
 
 scene = sacred.Scene()
+cam = sacred.Camera()
 sacred.clear()
 
 scene.obj("ent_e.json", 10, 0) # ./asciigen.py ent_e.txt ent_e
-scene.render()
+cam.render()
 ```
 and voilà!
 ```
@@ -152,6 +156,8 @@ That's where `Camera()` and `create_stage()` comes in.
 
 This means you can move around your camera instead of creating individual frames just to view a different part of the large model.
 
+See `demosacred.py` for the full potential of this library.
+
   
 [*Maniacal laughter*](https://www.youtube.com/watch?v=gY2k8_sSTsE)
 
@@ -191,6 +197,19 @@ The data is in this format:
 {"line#":["text", SpaceBeforeText]}
 ```
 Where `line#` means which line it is, `text` being what is printed on the line, and `SpaceBeforeText` means the, well, space before the line.
+## sacred.create_stage(w=width, h=height)
+This (by default) creates a stage that is the size of the terminal. By manipulating the `w` and `h` values, you can set the stage size to whatever you want.  
+
+Want a epic long chase? Increase the width and move the camera around by using `sacred.Camera()`.  
+
+*Note: The camera always starts at the top left corner of the stage*
+
+Args:
+```
+w (int): width of the stage
+h (int): height to the stage
+```
+
 ## sacred.Scene(object)
 Class for all objects in render. It has the following objects:
 ### Scene.obj(file, x=0, y=0)
@@ -220,25 +239,26 @@ Adds a box on terminal. Creates a box around the terminal by default. (Note that
 ```
 import sacred
 
-scene = sacred.Scene() 
+scene = sacred.Scene()
+cam = sacred.Camera() 
 
 scene.box(5, 5, 10, 10, fill="*")
-scene.render()
+cam.render()
 ```
 *Output:*
 ```
 
 
-     ----------
-     |********|
-     |********|
-     |********|
-     |********|
-     |********|
-     |********|
-     |********|
-     |********|
-     ----------
+     ┌────────┐
+     │********│
+     │********│
+     │********│
+     │********│
+     │********│
+     │********│
+     │********│
+     │********│
+     └────────┘
 
      
 ```
@@ -252,7 +272,10 @@ h (int): height (by char)
 fill (str): content that fills inside box. (Will return ValueError if fill is more than one char.)
 ```
 
-### Scene.render()
+### ~~Scene.render()~~ (deprecated)
+
+`*this has been deprecated*`
+
 Prints (or render, if you prefer) all the objects added. Note that it prints in the order of the added objects, so each object acts more like a layer.
   
 So if:
@@ -282,6 +305,15 @@ then this happens:
 
 
 ```
+
+## sacred.Camera(object)
+Class for moving around the stage, using the terminal like a viewport.
+
+### Camera.move(x=0, y=0)
+
+Moves the the 'camera' around the stage. This way you can have objects that are bigger than the terminal and it will still be able to render.
+
+### Camera.render(multi=False)
 
 ## sacred.TooLarge(Exception)
 Error raised when the objects that are added are bigger than the width of the terminal itself.
@@ -369,6 +401,9 @@ y (int): Position on y axis
 When `input()` is not enough. This is basically a moveable version of that, where you can set the position of it at anywhere.
 
 By default, it prints from the bottom of the terminal.
+
 ## sacred.clear()
-Clears terminal, for when you are too lazy to type `print(t.clear())`.
+Clears terminal,
+
+
 
