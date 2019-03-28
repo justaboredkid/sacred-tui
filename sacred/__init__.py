@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sys
+import ast
 from blessed import Terminal
 from sacred.modules import lines
 
@@ -122,6 +123,12 @@ class Scene(object):
         global screen
         return str(screen)
 
+    def restore(self, scr):
+        global screen
+        if isinstance(scr, str):
+            scr = ast.literal_eval(scr)
+        screen = scr
+
 
 class Camera(object):
     global screen
@@ -135,8 +142,7 @@ class Camera(object):
 
     def render(self, multi=False):
         r = screen[self.y:self.y + height - 1]
-        r = ["".join(r[i][self.x:self.x + width]) for i in range(0, len(r))
-            ]  # can't think of any better ideas
+        r = ["".join(r[i][self.x:self.x + width]) for i in range(0, len(r))]
 
         str(r)
         if multi:
@@ -156,9 +162,8 @@ class Camera(object):
 
         else:
             sys.stdout.flush()
-            with t.fullscreen():
-                with t.location(0, 0):
-                    sys.stdout.write("\n".join(r) + "\n")
+            with t.location(0, 0):
+                sys.stdout.write("\n".join(r) + "\n")
 
 
 class TooLarge(Exception):

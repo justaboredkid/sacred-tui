@@ -2,7 +2,7 @@
 ASCII art import and terminal graphics made simple. 
   
 
-[On second thought, this demo is not a good idea.](https://asciinema.org/a/236218)
+[![asciicast](https://asciinema.org/a/236218.svg)](https://asciinema.org/a/236218)
 
   
 
@@ -31,7 +31,7 @@ print("                              /_|___________-----<       ========,'")
 print("                                            `-.                ,'")
 print("                                              `----.______,--'")
 ```
-And add more spaces and `\\` and lose track of which line you added and then restart. **Eww no.**
+And add more spaces and backslashes and lose track of which line you added and then restart. **Eww no.**
   
 
 Or maybe this:
@@ -42,7 +42,7 @@ term = Terminal()
 
 print(term.clear)
 
-with open("ent_e.txt", "r") as f: # ent_e.txt contains the ascii art itself
+with open("ent_e.txt", "r") as f: # ent_e.txt contains the ASCII art itself
     ent = f.readlines()
 
 with term.location(10, 0):
@@ -78,7 +78,7 @@ scene = sacred.Scene()
 cam = sacred.Camera()
 sacred.clear()
 
-scene.obj("ent_e.json", 10, 0) # ./asciigen.py ent_e.txt ent_e
+scene.obj("ent_e.json", 10, 0) # asciigen ent_e.txt ent_e
 cam.render()
 ```
 and voilà!
@@ -92,10 +92,14 @@ and voilà!
                                            `-.                ,'
                                               `----.______,--'
 ```                                            
-Though you have to convert the ASCII art from txt to the json format that my script uses (by running the script in line 6), there is no hassle for just putting the spaceship a little bit more to the right. Or a bit toward the bottom. Anywhere on the terminal.
+Though you have to convert the ASCII art from text to the json format that my script uses (asciigen), there is no hassle for just putting the spaceship a little bit more to the right. Or a bit toward the bottom. Anywhere on the terminal.
 
-***ANYWHERE.***
-
+***ANYWHERE.***  
+  
+  
+[*Maniacal laughter*](https://www.youtube.com/watch?v=gY2k8_sSTsE)  
+  
+  
 And using this, you can still make complex scenes like this:
 ```
 from blessed import Terminal
@@ -109,15 +113,14 @@ t = Terminal()
 sacred.clear()
 
 scene.box()
-scene.obj("objs/grid.json", floor(t.width / 2) - 12, floor(t.height / 2) - 11)
-scene.txt(
-    t.green("For best gameplay, use numpad and 80x24 terminal"), t.width - 49,
+scene.obj("objs/grid.json", floor(t.width / 2) - 12, floor(t.height / 2) - 11) # JSON file not included
+scene.txt("For best gameplay, use numpad and 80x24 terminal", t.width - 49,
     t.height - 2)
 scene.txt("1) Single Player", 4, 5)
 scene.txt("2) Local Multiplayer", 4, 6)
 scene.txt("3) Help", 4, 7)
 scene.txt("4) Exit", 4, 8)
-scene.txt(t.bright_yellow("Ultimate Tic Tac Toe TERMINAL EDITION"), 0, 0)
+scene.txt("Ultimate Tic Tac Toe TERMINAL EDITION", 0, 0)
 scene.render()
 ```
   
@@ -148,18 +151,24 @@ Ultimate Tic Tac Toe TERMINAL EDITION------------------------------------------
 ```
   
   
-## *Wait a minute, I want a bigger scene, but `scene.render()` won't allow objects to exceed terminal size. EXPLAIN*
+## *Wait a minute, I have bigger ASCII art, but `scene.render()` won't allow objects to exceed terminal size. EXPLAIN*
 
 That's where `Camera()` and `create_stage()` comes in.  
 
-`Camera.move()` allows you to move around the stage. Using `create_stage()` you can define an area that is bigger than the terminal.  
+`Camera.move()` allows you to move around the stage. Using `create_stage()` you can define an area that is bigger than the terminal size.  
 
 This means you can move around your camera instead of creating individual frames just to view a different part of the large model.
 
-See `demosacred.py` for the full potential of this library.
+See [`demosacred.py`](https://github.com/justaboredkid/sacred-tui/blob/master/demosacred.py) for the full potential of this library.
 
   
-[*Maniacal laughter*](https://www.youtube.com/watch?v=gY2k8_sSTsE)
+
+# Terminology
+
+*Camera*:  V-Cam. Something like the [Virtual Camera in Adobe Animate](https://helpx.adobe.com/ca/animate/how-to/virtual-camera.html).  
+*Scene*:  Layer of objects.  
+*Screen/Stage*:  The work area. It can be larger than the terminal size.  
+*Objects*: Text, Boxes, ASCII art etc.
 
 
 
@@ -173,11 +182,11 @@ or use pip:
 pip install blessed-tui
 ```
 
-*Note: does not support python2*
+*Note: does not support Python 2*
 
 # Documentation
-## [asciigen.py](https://github.com/justaboredkid/sacred/blob/master/asciigen.py)
-Python script for generating ascii json files. All you need to do is to grab some ascii art (from the web or somewhere else), use ./asciigen.py to covert it into json, and:
+### [asciigen.py](https://github.com/justaboredkid/sacred-tui/blob/master/asciigen.py)
+Python script for generating ASCII json files. All you need to do is to grab some ASCII art (from the web or somewhere else), type `asciigen` in the terminal to covert it into json, and:
 ```
 import sacred
 
@@ -196,8 +205,8 @@ The data is in this format:
 ```
 {"line#":["text", SpaceBeforeText]}
 ```
-Where `line#` means which line it is, `text` being what is printed on the line, and `SpaceBeforeText` means the, well, space before the line.
-## sacred.create_stage(w=width, h=height)
+Where `line#` means which line it is, `text` being what is printed on the line, and `SpaceBeforeText` means the, well, space before the line. Note that this tool isn't perfect, so you might have to edit the `SpaceBeforeText` part.
+### sacred.create_stage(w=width, h=height)
 This (by default) creates a stage that is the size of the terminal. By manipulating the `w` and `h` values, you can set the stage size to whatever you want.  
 
 Want a epic long chase? Increase the width and move the camera around by using `sacred.Camera()`.  
@@ -210,10 +219,14 @@ w (int): width of the stage
 h (int): height to the stage
 ```
 
-## sacred.Scene(object)
+## *sacred.Scene(object)*
 Class for all objects in render. It has the following objects:
+### Scene.reset()
+This function clears everything in the scene, kind of like a 'Erase everything on the scene' function. It keeps the original stage size as well.
+
+
 ### Scene.obj(file, x=0, y=0)
-Imports ascii json files.  Those are generated by ./asciigen.py. Returns the json dict.
+Imports ASCII json files.  Those are generated by `asciigen`. It adds the ASCII art to the scene as well as returning the json.
 
 Args:
 ```
@@ -222,8 +235,8 @@ x (int): position on the x axis
 y (int): position on the y axis
 ```
 ### Scene.txt(txt, x=0, y=0)
-Adds text to the position (x, y).  
-  
+Adds text to the position (x, y). Similar to `print()`, but you can put it wherever you want on the scene.
+
 
 Args:
 ```
@@ -272,48 +285,32 @@ h (int): height (by char)
 fill (str): content that fills inside box. (Will return ValueError if fill is more than one char.)
 ```
 
+
 ### ~~Scene.render()~~ (deprecated)
 
-`*this has been deprecated*`
+**`this has been deprecated. Will remove soon.`**
 
-Prints (or render, if you prefer) all the objects added. Note that it prints in the order of the added objects, so each object acts more like a layer.
-  
-So if:
-```
-scene.box(5, 5, 10, 10, fill="*")
-scene.box(6, 6, 10, 10) # the box will be filled by a space character (" ")
-scene.render()
-```
-then this happens:
-```
+### Scene.export()
+This function takes the stage, converts it into string, and return the stage. You could do whatever you want with it, it is a large nested list. That includes but not limited to storing it as a variable.
+
+### Scene.restore(scr)
+This takes the output of `Scene.export()` and restore it. You can restore the scene from the aforementioned variable.
 
 
-
-
-    ----------
-    |        |
-    | ----------
-    | |********|
-    | |********|
-    | |********|
-    | |********|
-    | |********|
-    | |********|
-    --|********|
-      |********|
-      ----------
-
-
-```
 
 ## sacred.Camera(object)
-Class for moving around the stage, using the terminal like a viewport.
+Class for moving around the camera, using the terminal like a viewport.
 
 ### Camera.move(x=0, y=0)
 
-Moves the the 'camera' around the stage. This way you can have objects that are bigger than the terminal and it will still be able to render.
+Moves the the camera inside stage. This way you can have objects that are bigger than the terminal and it will still be able to render.
 
 ### Camera.render(multi=False)
+
+Renders (or print, if you prefer) all the objects added. Note that it prints in the order of the added objects, so each object goes on top of other objects in the order of the objects added.
+
+The `multi` argument allows multi-thread rendering. *This is still work in progress.*
+
 
 ## sacred.TooLarge(Exception)
 Error raised when the objects that are added are bigger than the width of the terminal itself.
@@ -337,73 +334,13 @@ Traceback (most recent call last):
     raise TooLarge
 sacred.TooLarge
 ```
-
-## sacred.fill(txt, delay=0, diag=True)
-Fills screen with `txt`.
-
-Example:
-```
-import sacred
-
-scene = sacred.Scene()
-
-sacred.clear()
-sacred.fill("#")
-scene.txt("IFR is foggy", y=23)
-scene.render()
-input()
-```
-
-Output:
-```
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-###############################################################################
-IFR is foggy
-```
-By default, there is a space underneath the fill to accommodate for printing text for messages.
-
-Args:
-```
-txt (str): Character to fill terminal. Will return ValueError if more than one char.
-delay (int): Delay set for printing each line.
-diag (bool):  Determines whether to put a blank line underneath the fill or not.
-```
-## sacred.printobj(js, x, y):
-Used internally to print ascii json files. 
-
-Args:
-```
-js (json): ascii json files should go here
-x (int): Position on x axis
-y (int): Position on y axis
-```
 ## sacred.txtbox(txt, x=0, y=t.height - 1)
 When `input()` is not enough. This is basically a moveable version of that, where you can set the position of it at anywhere.
 
 By default, it prints from the bottom of the terminal.
 
 ## sacred.clear()
-Clears terminal,
+Clears terminal by printing spaces by the width and height of the terminal. Not very efficient, but effective.
 
 
 
