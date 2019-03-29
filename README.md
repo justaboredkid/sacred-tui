@@ -175,11 +175,15 @@ See [`demosacred.py`](https://github.com/justaboredkid/sacred-tui/blob/master/de
 # Installation
 Clone repo and install:
 ```
+# Dependency
+pip install blessed
+
+
 python3 setup.py install
 ```
 or use pip:
 ```
-pip install blessed-tui
+pip install sacred-tui
 ```
 
 *Note: does not support Python 2*
