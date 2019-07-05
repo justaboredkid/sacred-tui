@@ -1,0 +1,20 @@
+language: python
+dist: xenial
+python:
+- '3.4'
+- '3.6'
+- '3.7'
+- 3.8-dev
+cache: pip
+install:
+- pip install blessed
+script:
+- python setup.py test
+deploy:
+  provider: pypi
+  user: justaboredkid
+  password:
+    secure: NCQu2AVp+vFrMN2HavfZGnJnDSu/OKRRHGC3CX5b3ZXtJMqv5B7oda/fDw2VCWOD50oFYrUOW6ZrZBlcNod/SQtLrwTgOcAcRV2Vh2rIYK8m9u8qf9kpgsuZy0Q2HoarZoNqap8pKa2llDd28N5I5wRYD+NXpSMnYkDEZKMGKK84kvYZs5FHKTGbEXB5QScVcMHA3vM6n3hJDLUEZTJcgGJb3Bc1qbNiONQMjWHXZxmjYrTUlbRy+7H7Y86F4bhXMO24qCxpjt6enGK282yjossjzA3ibMQso+ScQeiwHqRzIHP2tlrzFFLLqS/gSToZzFDniTXAclP6uPFqUz+rCDZ5Rl9bTL5gZPwyC8EXOOhTlGt3ArASHvgueY2i998vhh0Qo1A8IimPT63jO1PKS1K7PefXfXRLB9skBeyUm51R8t9lFDAk2QjMai+kVjij1skBZ1I6rqxSDpT5h9Sl/wkZUinkwK5DRgAocWBSNF9JdHmLCFqPLMKIVjEpK38wLq01fa5NjjYaiOED9MTTocqkQCMMal3Dz9cYT5l3wqEOjIguACxUtoT6g1IVITG9wCaKevODMOl85ku1M9B01oHxYIJPEuiY6tuyPwetIWEvr8NzDupxMdJ3Edn0KPq4gZOeUTZCGieYTLooi5f4zsM5gtyN110vEpvp9bb8ixw=
+  on:
+    tags: true
+    branch: master

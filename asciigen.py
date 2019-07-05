@@ -14,6 +14,8 @@ import json
 import re
 from sys import argv
 
+obj = {}
+
 
 def write():
     file = argv[2]
@@ -27,7 +29,6 @@ def write():
 def main():
     if len(argv) == 3:
         infile = argv[1]
-        obj = {}
         with open(infile, "r") as f:
             ln = f.readlines()
             splist = [re.search(r"[^ ]", l).start() for l in ln]
