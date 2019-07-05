@@ -102,8 +102,9 @@ class Scene(object):
                 ] + screen[y + h - 1][x + w:]
 
                 for i in range(1, int(h) - 1):
-                    screen[y + i] = screen[y + i][:x] + "|" + fill * (
-                        w - 2) + "|" + screen[y + i][x + w:]
+                    screen[y + i] = screen[y + i][:x] + ["|"] + [
+                        fill for _ in range(0, w - 2)
+                    ] + ["|"] + screen[y + i][x + w:]
 
             else:
                 screen[y] = screen[y][:x] + [lines.line[style][7]] + [
