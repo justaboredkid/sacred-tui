@@ -71,9 +71,8 @@ class Scene(object):
             if raw != txt:
                 protxt = txt.split()
                 for i in range(0, len(protxt)):
-                    if not pattern.match(protxt[i]):
-                        protxt[i] = protxt[i] + ' '
-                screen[y] = screen[y][:x] + protxt + screen[y][x + len(raw):]
+                    protxt[i] = protxt[i] + ' '
+                screen[y] = screen[y][:x] + protxt + screen[y][len(raw):]
             else:
                 screen[y] = screen[y][:x] + list(txt) + screen[y][x + len(txt):]
         except IndexError:
