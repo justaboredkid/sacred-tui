@@ -5,6 +5,7 @@ with open("README.md", "r") as fh:
         name='sacred_tui',
         version='0.2.1',
         long_description=fh.read(),
+        long_description_content_type='text/markdown',
         description='Python library for ASCII art import and TUI development',
         url='https://github.com/justaboredkid/sacred',
         test_suite='tests',
