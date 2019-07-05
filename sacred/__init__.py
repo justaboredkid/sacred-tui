@@ -126,7 +126,7 @@ class Scene(object):
             print("Scene.box: x={} y= {} w={} h={} \n".format(x, y, w, h))
             raise TooLarge
 
-    def fill(self, x=0, y=0, w=width, h=height - 1, fill="#"):
+    def fill(self, x=0, y=0, w=width, h=height, fill="#"):
         global screen
         try:
             if len(fill) > 1:
