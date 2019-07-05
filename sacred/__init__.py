@@ -6,12 +6,17 @@ import os
 import re
 import sys
 import ast
+import atexit
+
 from blessed import Terminal
+import cursor
+
 from sacred.modules import lines
 
 t = Terminal()
 screen = []
 width, height = get_terminal_size()
+atexit.register(cursor.show)
 
 
 def create_stage(w=width, h=height):
@@ -25,6 +30,7 @@ class Scene(object):
     def __init__(self):
         if screen == []:
             create_stage()
+        cursor.hide()
 
     def reset(self):
         global screen
@@ -44,9 +50,8 @@ class Scene(object):
                 for key, item in j.items():
                     if key != "size":
                         screen[y + int(key)] = screen[y + int(key)][:(
-                            x + item[1])] + list(
-                                item[0]) + screen[y + int(key)][(
-                                    x + (item[1] + len(item[0]))):]
+                            x + item[1])] + list(item[0]) + screen[
+                                y + int(key)][(x + (item[1] + len(item[0]))):]
 
                 if "size" not in j.keys():  # 0.1.0 compatibility
                     s = []
@@ -55,14 +60,14 @@ class Scene(object):
                     j["size"] = [max(s), len(j)]
             return j
         except IndexError:
-            print("Scene.obj(): {} \n".format(file))
+            print("Scene.obj(): x={}, y={}, {} \n".format(x, y, file))
             raise TooLarge
 
     def txt(self, txt: str, x=0, y=0):
         global screen
         try:
             pattern = re.compile(r"(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]")
-            raw = pattern.sub("", txt)  # ANSI stuff
+            raw = pattern.sub(" ", txt)  # ANSI stuff
             if raw != txt:
                 protxt = txt.split()
                 for i in range(0, len(protxt)):
@@ -72,10 +77,19 @@ class Scene(object):
             else:
                 screen[y] = screen[y][:x] + list(txt) + screen[y][x + len(txt):]
         except IndexError:
-            print("Scene.txt(): {} \n".format(raw))
+            print("Scene.txt(): x={} y={} {} \n".format(x, y, raw))
             raise TooLarge
 
-    def box(self, x=0, y=0, w=width, h=height - 1, style='reg', fill=" "):
+    def box(self, x=0, y=0, w=width, h=height, style='reg', fill=" "):
+        '''
+        line.line[style][#]
+        0 = top, 1 = top right, 
+        2 = right, 3 = bottom right,
+        4 = bottom, 5 = bottom left, 
+        6 = left,  7 = top left
+    
+        Basically just clockwise starting from the top.
+        '''
         global screen
         try:
             if len(fill) > 1:
@@ -88,8 +102,8 @@ class Scene(object):
                     "-" for _ in range(0, w)
                 ] + screen[y + h - 1][x + w:]
 
-                for i in range(0, int(h) - 2):
-                    screen[y + i + 1] = screen[y + i][:x] + "|" + fill * (
+                for i in range(1, int(h) - 1):
+                    screen[y + i] = screen[y + i][:x] + "|" + fill * (
                         w - 2) + "|" + screen[y + i][x + w:]
 
             else:
@@ -97,19 +111,33 @@ class Scene(object):
                     lines.line[style][0] for _ in range(0, w - 2)
                 ] + [lines.line[style][1]] + screen[y][x + w:]
 
-                screen[y + h - 1] = screen[y + h - 1][:x] + [
-                    lines.line[style][5]
-                ] + [lines.line[style][4] for _ in range(0, w - 2)
-                    ] + [lines.line[style][3]] + screen[y + h - 1][x + w:]
+                screen[y + h -
+                       1] = screen[y + h - 1][:x] + [lines.line[style][5]] + [
+                           lines.line[style][4] for _ in range(0, w - 2)
+                       ] + [lines.line[style][3]] + screen[y + h - 1][x + w:]
 
-                for i in range(0, int(h) - 2):
-                    screen[y + i + 1] = screen[y + i][:x] + [
-                        lines.line[style][6]
-                    ] + [fill for _ in range(0, w - 2)
-                        ] + [lines.line[style][2]] + screen[y + i][x + w:]
+                for i in range(1, int(h) - 1):
+                    screen[y +
+                           i] = screen[y + i][:x] + [lines.line[style][6]] + [
+                               fill for _ in range(0, w - 2)
+                           ] + [lines.line[style][2]] + screen[y + i][x + w:]
 
         except IndexError:
-            print("Scene.box: w={} h={} \n".format(w, h))
+            print("Scene.box: x={} y= {} w={} h={} \n".format(x, y, w, h))
+            raise TooLarge
+
+    def fill(self, x=0, y=0, w=width, h=height - 1, fill="#"):
+        global screen
+        try:
+            if len(fill) > 1:
+                raise ValueError
+            else:
+                for i in range(0, int(h)):
+                    screen[y +
+                           i] = screen[y + i][:x] + [fill * (w)
+                                                    ] + screen[y + i][x + w:]
+        except IndexError:
+            print("Scene.fill: x={} y= {} w={} h={} \n".format(x, y, w, h))
             raise TooLarge
 
     def render(self):  # for unadjusted stages. deprecated.
@@ -130,6 +158,16 @@ class Scene(object):
         screen = scr
 
 
+def txtbox(txt, x=0, y=height - 1):
+    with t.location(x, y):
+        i = input(txt)
+        return i
+
+
+def clear():  # clears screen
+    print(t.clear_eos)
+
+
 class Camera(object):
     global screen
 
@@ -139,31 +177,19 @@ class Camera(object):
 
     def __init__(self, x=0, y=0):
         self.move(x, y)
+        clear()
 
     def render(self, multi=False):
-        r = screen[self.y:self.y + height - 1]
+        r = screen[self.y:self.y + height]
         r = ["".join(r[i][self.x:self.x + width]) for i in range(0, len(r))]
-
         str(r)
-        if multi:
-            # to do
-            lock = Lock()
 
-            def f(l, i):
-                l.acquire()
-
-                sys.stdout.flush()
-                with t.location(0, i):
-                    sys.stdout.write("\n\n".join(r[i::2]) + "\n")
-                l.release()
-
-            for i in range(2):
-                Process(target=f, args=(lock, i)).start()
-
-        else:
-            sys.stdout.flush()
-            with t.location(0, 0):
-                sys.stdout.write("\n".join(r) + "\n")
+        sys.stdout.flush()
+        with t.location(0, 0):
+            lst = r.pop(-1)
+            sys.stdout.write("\n".join(r))
+        with t.location(0, height - 1):
+            print(lst, end="\r")
 
 
 class TooLarge(Exception):
@@ -174,16 +200,6 @@ class TooLarge(Exception):
         msg = a + b
         super(TooLarge, self).__init__(msg)
         print(t.bold_red_on_bright_yellow(a) + t.bold_white_on_green(b))
-
-
-def txtbox(txt, x=0, y=height - 1):
-    with t.location(x, y):
-        i = input(txt)
-        return i
-
-
-def clear():  # clears screen
-    print((width * " " + "\n") * height)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ from setuptools import setup
 with open("README.md", "r") as fh:
     setup(
         name='sacred_tui',
-        version='0.3',
+        version='0.2.1',
         long_description=fh.read(),
         description='Python library for ASCII art import and TUI development',
         url='https://github.com/justaboredkid/sacred',
@@ -12,9 +12,7 @@ with open("README.md", "r") as fh:
         author_email='29010153+justaboredkid@users.noreply.github.com',
         license='GNU GPLv3',
         packages=['sacred'],
-        install_requires=[
-            'blessed',
-        ],
+        install_requires=['blessed', 'cursor'],
         classifiers=[
             'Environment :: Console',
             'Intended Audience :: Developers',
